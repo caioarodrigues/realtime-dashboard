@@ -7,8 +7,7 @@ import { GenericUser } from '../types/User';
 
 const secret: string = process.env.SECRET || "this isn't a secret lmao";
 
-export default class TokenController {
-    
+export default class TokenController {    
     private static _instance: TokenController;
 
     private constructor() {};
@@ -26,7 +25,10 @@ export default class TokenController {
         return token;
     }
     isValid(token: string): boolean {
-        throw new Error('Method not implemented.');
+        const result = verify(token, secret);
+        console.log(result);
+        
+        return !!result;
     }
     addToBlackList(token: Token): OperationResponse {
         throw new Error('Method not implemented.');
