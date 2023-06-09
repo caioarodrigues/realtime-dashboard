@@ -46,8 +46,56 @@ export default class RoomController {
     public listAllRooms(): Room[] {
         return rooms;
     }
-    public removeRoom(id: number, token: Token){
+    public removeRoom(id: number, token: Token): OperationResponse {
+        const { success } = tokenController.isValid(token);
+        const data = tokenController.decrypt(token);
 
+        console.log('success: ' + success);
+
+        if(!data)
+            return {
+                message: "you cannot do this because you're not an admin!",
+                success: false
+            }
+        
+        if(!success)
+            return {
+                message: "your token is not valid!",
+                success: false
+            }
+
+        if(id > rooms.length)
+            return {
+                message: "the id isn't valid",
+                success: false 
+            }
+
+        try{
+            const { username } = data;
+            const admins = rooms[id]!.admin; 
+
+            for(let adm of admins){
+                if(adm.username === username){
+                    rooms[id]!.admin = [];
+                    rooms[id]!.users = [];
+
+                    break;
+                }
+            }
+
+            return { 
+                message: "you successfully deleted the room",
+                success: true
+            }
+        }
+        catch(err){
+            console.log("error whilst trying to remove the room. ", err);
+
+            return {
+                message: "error whilst trying to remove the room.",
+                success: false
+            }
+        }
     }
     public editRoom(){}
 }

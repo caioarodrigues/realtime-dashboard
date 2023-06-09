@@ -4,4 +4,4 @@ export type Room = {
     id: number;
     users: User [];
     admin: User [];
-}
+} | null

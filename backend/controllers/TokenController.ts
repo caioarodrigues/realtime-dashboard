@@ -3,7 +3,7 @@ import { DotenvConfigOptions } from 'dotenv';
 import ITokenController from '../interfaces/ITokenController';
 import { OperationResponse } from '../types/Operation';
 import { Token } from '../types/Token';
-import { GenericUser } from '../types/User';
+import { GenericUser, User } from '../types/User';
 
 const secret: string = process.env.SECRET || "this isn't a secret lmao";
 
@@ -19,18 +19,42 @@ export default class TokenController {
         return this._instance;
     }
     
-    generate(user: GenericUser): Token {
+    public generate(user: GenericUser): Token {
         const token = sign(user, secret, { expiresIn: '3h' });
         
         return token;
     }
-    isValid(token: string): boolean {
-        const result = verify(token, secret);
-        console.log(result);
-        
-        return !!result;
+    public isValid(token: Token): OperationResponse {
+        try{
+            const result = verify(token, secret);
+
+            return {
+                message: "this token is valid",
+                success: true
+            };
+        }
+        catch(err){
+            return {
+                message: "this token isn't valid!",
+                success: false
+            };
+        }
     }
-    addToBlackList(token: Token): OperationResponse {
+    public decrypt(token: Token): User | null{
+        try{
+            const data = verify(token, secret) as string;
+            const obj = JSON.parse(data) as User;
+
+            console.log(`data: ${obj}`);
+
+            return obj;
+        }
+        catch(err) { 
+            return null;
+        }
+    }
+
+    public addToBlackList(token: Token): OperationResponse {
         throw new Error('Method not implemented.');
     }
     
