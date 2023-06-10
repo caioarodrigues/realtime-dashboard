@@ -4,6 +4,7 @@ import { FirstUser, User } from "../types/User";
 import { Token } from "../types/Token";
 import UserController from "./UserController";
 import TokenController from "./TokenController";
+import log from "../decorators/log";
 
 const rooms: Room[] = [];
 const userController = UserController.getUserController();
@@ -43,6 +44,8 @@ export default class RoomController {
 
         rooms.push(thisRoom);
     }
+    
+    @log
     public listAllRooms(): Room[] {
         return rooms;
     }
