@@ -7,14 +7,13 @@ const roomController = RoomController.getRoomController();
 
 joinMatchRoute.post('/join', async (req: Request, res: Response) => {
     const { id, username } = req.body;
-    const defaultResponse: OperationResponse = {
-        message: `you just got in the room #${id}!`,
-        success: true
-    }
+    const response = roomController.joinRoom(id as number, username);
+    const { success } = response;
+    
+    if(!success)
+        return res.status(404).json(response);
 
-    roomController.joinRoom(id as number, username);
-
-    return res.json(defaultResponse);
+    return res.json(response);
 });
 
 export default joinMatchRoute;

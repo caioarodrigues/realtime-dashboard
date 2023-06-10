@@ -14,12 +14,7 @@ newMatchRouter.post('/new', async (req: Request, res: Response) => {
     const { username } = req.body;
     const user = userController.createNewUser(username);
     const token = tokenController.generate(user as GenericUser);
-    const response: OperationResponse = {
-        message: "new user created",
-        success: true
-    }
-
-    roomController.addNewRoom(user as FirstUser);
+    const response = roomController.addNewRoom(user as FirstUser);
     
     return res.json({
         user,

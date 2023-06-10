@@ -28,6 +28,7 @@ export default class TokenController {
         try{
             const result = verify(token, secret);
 
+            console.log(result)
             return {
                 message: "this token is valid",
                 success: true
@@ -42,14 +43,25 @@ export default class TokenController {
     }
     public decrypt(token: Token): User | null{
         try{
-            const data = verify(token, secret) as string;
-            const obj = JSON.parse(data) as User;
+            const isValid = this.isValid(token);
 
-            console.log(`data: ${obj}`);
+            if(isValid){
+                const data = verify(token, secret) as string;
+                console.log(`data: ${JSON.stringify(data)}`, typeof data);
 
-            return obj;
+                if(typeof data === "object"){
+                    const { id, username, score, roomID, iat, exp } = data;
+                    const user: User = { id, score, username, roomID };
+                    
+                    return user;
+                }
+            }
+
+            return null;
         }
-        catch(err) { 
+        catch(err: unknown) { 
+            console.log(`error while trying to decript the token: ${err}`);
+
             return null;
         }
     }

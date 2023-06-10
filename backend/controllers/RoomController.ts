@@ -5,6 +5,7 @@ import { Token } from "../types/Token";
 import UserController from "./UserController";
 import TokenController from "./TokenController";
 import log from "../decorators/log";
+import { PlayerOperations } from "../enums/PlayerOperations";
 
 const rooms: Room[] = [];
 const userController = UserController.getUserController();
@@ -20,7 +21,13 @@ export default class RoomController {
         return this._instance;
     }
 
-    public joinRoom(id: number, username: string): void {
+    private isAdmin(token: Token) {
+        const decrypted = tokenController.decrypt(token);
+        const obj = decrypted || {};
+
+
+    }
+    public joinRoom(id: number, username: string): OperationResponse {
         const thisUser = userController.createNewUser(username);
         const i = parseInt(id.toString());
 
@@ -30,11 +37,19 @@ export default class RoomController {
             if(pivot === i){
                 rooms.at(i)?.users.push(thisUser);
 
-                break;
+                return {
+                    message: `you just got in the room ${id}`,
+                    success: true
+                }
             }
         }
+
+        return {
+            message: "this room doesn't exist!",
+            success: false
+        }
     }
-    public addNewRoom(firstUser: FirstUser): void {
+    public addNewRoom(firstUser: FirstUser): OperationResponse {
         const roomID = rooms.length;
         const thisRoom: Room = {
             id: roomID,
@@ -43,6 +58,11 @@ export default class RoomController {
         }
 
         rooms.push(thisRoom);
+
+        return {
+            message: "a new room just got created",
+            success: true
+        }
     }
     
     @log
@@ -53,7 +73,7 @@ export default class RoomController {
         const { success } = tokenController.isValid(token);
         const data = tokenController.decrypt(token);
 
-        console.log('success: ' + success);
+        console.log(`${success}, ${JSON.stringify(data)}`);
 
         if(!data)
             return {
@@ -74,24 +94,27 @@ export default class RoomController {
             }
 
         try{
-            const { username } = data;
+            const { username, id: index } = data;
             const admins = rooms[id]!.admin; 
 
             for(let adm of admins){
-                if(adm.username === username){
+                if(adm.username === username && index === adm.id){
                     rooms[id]!.admin = [];
                     rooms[id]!.users = [];
 
-                    break;
+                    return { 
+                        message: "you successfully deleted the room",
+                        success: true
+                    }
                 }
             }
 
-            return { 
-                message: "you successfully deleted the room",
-                success: true
+            return {
+                message: "you're not admin of the room",
+                success: false
             }
         }
-        catch(err){
+        catch(err: unknown){
             console.log("error whilst trying to remove the room. ", err);
 
             return {
@@ -99,6 +122,13 @@ export default class RoomController {
                 success: false
             }
         }
+    }
+    public editPlayerPonctuation(token: Token, userID: number, operation: PlayerOperations): OperationResponse {
+        const isValid = tokenController.isValid(token);
+        if(!isValid)
+            return { message: "this token isn't valid!", success: false }
+        
+        return { message: "", success: false }
     }
     public editRoom(){}
 }

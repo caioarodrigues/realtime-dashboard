@@ -2,7 +2,6 @@ import { User } from "../types/User";
 import { Room } from "../types/Room";
 
 const users: User[] = [];
-const rooms: Room[] = [];
 
 export default class UserController {
     private static _instance: UserController;

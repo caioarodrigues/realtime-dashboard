@@ -10,7 +10,7 @@ removeRoomRouter.delete('/remove', async (req: Request, res: Response) => {
     const { success } = response;
 
     if(!success)
-        return res.json(response).status(403);
+        return res.status(403).json(response);
     
     return res.json(response);
 })
