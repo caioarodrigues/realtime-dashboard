@@ -45,10 +45,11 @@ export default class RoomModel {
             const pivot = rooms.at(i)?.id;
 
             if(pivot === i){
-                const hasAdmin = !!rooms.at(pivot)?.admin;
-                const repeatedUser = rooms.at(pivot)?.users.some(({ id: userID }) => {
-                    return userID === id;
-                });
+                const thisUsers = rooms.at(i)!.users;
+                const hasAdmin = rooms.at(i)!.admin.length > 0;
+                const isRepeated = thisUsers.some(({ username: _ }) => {
+                    return _ === username;
+                })
 
                 if(!hasAdmin){
                     return {
@@ -56,23 +57,22 @@ export default class RoomModel {
                         success: false
                     }
                 }
+                if(!isRepeated){
+                    thisUsers.push(thisUser);
 
-                if(repeatedUser){
                     return {
-                        message: "this username already exists in the room!",
-                        success: false
+                        message: `you just got in the room ${id}`,
+                        success: true
                     }
                 }
-                
-                rooms.at(i)?.users.push(thisUser);
-
-                return {
-                    message: `you just got in the room ${id}`,
-                    success: true
+                else {
+                    return {
+                        message: "this username already exists!",
+                        success: false 
+                    }
                 }
             }
         }
-
         return {
             message: "this room doesn't exist!",
             success: false
