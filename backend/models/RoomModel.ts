@@ -45,6 +45,25 @@ export default class RoomModel {
             const pivot = rooms.at(i)?.id;
 
             if(pivot === i){
+                const hasAdmin = !!rooms.at(pivot)?.admin;
+                const repeatedUser = rooms.at(pivot)?.users.some(({ id: userID }) => {
+                    return userID === id;
+                });
+
+                if(!hasAdmin){
+                    return {
+                        message: "this room has no admin!",
+                        success: false
+                    }
+                }
+
+                if(repeatedUser){
+                    return {
+                        message: "this username already exists in the room!",
+                        success: false
+                    }
+                }
+                
                 rooms.at(i)?.users.push(thisUser);
 
                 return {
@@ -151,17 +170,43 @@ export default class RoomModel {
                 success: false
             }
         }
-        
-        rooms[roomID]?.admin.forEach(adm => {
-            const { id } = adm;
 
-            if(wasFound) return;
-
-            if(id === userID){
-                adm.score++;
-                wasFound = true;
+        for(let room of rooms){
+            if(!room?.admin && !room?.users){
+                continue;
             }
-        })
+            if (room.admin && room.users){
+                const { id, admin, users } = room;
+
+                if(id !== roomID)
+                    continue;
+                    
+                    admin.forEach((adm, index, array) => {
+                        const { id } = adm;
+                        
+                        if(wasFound)
+                            return;
+                        if(id === userID){
+                            array[index].score = 10;
+                            wasFound = true;
+                        }
+                    });
+
+                    if(wasFound)
+                        break;
+
+                    users.forEach((user, index, array) => {
+                        const { id } = user;
+
+                        if(wasFound)
+                            return;
+                        if(id === userID){
+                            array[index].score = 10;
+                            wasFound = true;
+                        }
+                    });
+            }
+        }
         
         if(wasFound){
             return { message: "the ponctuation was edited", success: true };
