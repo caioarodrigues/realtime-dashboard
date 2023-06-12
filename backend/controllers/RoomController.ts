@@ -1,134 +1,57 @@
-import { OperationResponse } from "../types/Operation";
-import { Room } from "../types/Room";
-import { FirstUser, User } from "../types/User";
-import { Token } from "../types/Token";
-import UserController from "./UserController";
-import TokenController from "./TokenController";
-import log from "../decorators/log";
-import { PlayerOperations } from "../enums/PlayerOperations";
+import RoomModel from "../models/RoomModel";
+import UserModel from "../models/UserModel";
+import TokenModel from "../models/TokenModel";
+import { Request, Response } from "express";
+import { FirstUser, GenericUser } from "../types/User";
 
-const rooms: Room[] = [];
-const userController = UserController.getUserController();
-const tokenController = TokenController.getTokenController();
+const roomModel = RoomModel.getRoomModel();
+const userModel = UserModel.getUserModel();
+const tokenModel = TokenModel.getTokenModel();
 export default class RoomController {
-    private static _instance: RoomController;
-    private constructor() {}
+    public static async getAllRooms(req: Request, res: Response){
+        const rooms = roomModel.listAllRooms();
 
-    public static getRoomController(){
-        if(!this._instance)
-            this._instance = new RoomController();
+        return res.json(rooms);
+    }
+    public static async addNewRoom(req: Request, res: Response){
+        const { username } = req.body;
+        const user = userModel.createNewUser(username);
+        const token = tokenModel.generate(user as GenericUser);
+        const response = roomModel.addNewRoom(user as FirstUser);
         
-        return this._instance;
+        return res.json({
+            user,
+            response,
+            token,
+        });
     }
-
-    private isAdmin(token: Token) {
-        const decrypted = tokenController.decrypt(token);
-        const obj = decrypted || {};
-
-
-    }
-    public joinRoom(id: number, username: string): OperationResponse {
-        const thisUser = userController.createNewUser(username);
-        const i = parseInt(id.toString());
-
-        for(let j = 0; j < rooms.length; j++){
-            const pivot = rooms.at(i)?.id;
-
-            if(pivot === i){
-                rooms.at(i)?.users.push(thisUser);
-
-                return {
-                    message: `you just got in the room ${id}`,
-                    success: true
-                }
-            }
-        }
-
-        return {
-            message: "this room doesn't exist!",
-            success: false
-        }
-    }
-    public addNewRoom(firstUser: FirstUser): OperationResponse {
-        const roomID = rooms.length;
-        const thisRoom: Room = {
-            id: roomID,
-            users: [],
-            admin: [{ ...firstUser, roomID }]
-        }
-
-        rooms.push(thisRoom);
-
-        return {
-            message: "a new room just got created",
-            success: true
-        }
-    }
+    public static async editPonctuation(req: Request, res: Response){
+        const { token, userID, roomID, operation } = req.body;
+        const response = roomModel.editPlayerPonctuation(token, userID, roomID, operation);
     
-    @log
-    public listAllRooms(): Room[] {
-        return rooms;
+        return res.json(response);
     }
-    public removeRoom(id: number, token: Token): OperationResponse {
-        const { success } = tokenController.isValid(token);
-        const data = tokenController.decrypt(token);
+    public static async editRoom(req: Request, res: Response){
 
-        console.log(`${success}, ${JSON.stringify(data)}`);
-
-        if(!data)
-            return {
-                message: "you cannot do this because you're not an admin!",
-                success: false
-            }
+    }
+    public static async joinRoom(req: Request, res: Response){
+        const { id, username } = req.body;
+        const response = roomModel.joinRoom(id as number, username);
+        const { success } = response;
         
         if(!success)
-            return {
-                message: "your token is not valid!",
-                success: false
-            }
-
-        if(id > rooms.length)
-            return {
-                message: "the id isn't valid",
-                success: false 
-            }
-
-        try{
-            const { username, id: index } = data;
-            const admins = rooms[id]!.admin; 
-
-            for(let adm of admins){
-                if(adm.username === username && index === adm.id){
-                    rooms[id]!.admin = [];
-                    rooms[id]!.users = [];
-
-                    return { 
-                        message: "you successfully deleted the room",
-                        success: true
-                    }
-                }
-            }
-
-            return {
-                message: "you're not admin of the room",
-                success: false
-            }
-        }
-        catch(err: unknown){
-            console.log("error whilst trying to remove the room. ", err);
-
-            return {
-                message: "error whilst trying to remove the room.",
-                success: false
-            }
-        }
+            return res.status(404).json(response);
+    
+        return res.json(response);
     }
-    public editPlayerPonctuation(token: Token, userID: number, operation: PlayerOperations): OperationResponse {
-        const isValid = tokenController.isValid(token);
-        if(!isValid)
-            return { message: "this token isn't valid!", success: false }
+    public static async removeRoom(req: Request, res: Response){
+        const { id, token } = req.body;
+        const response = roomModel.removeRoom(id, token);
+        const { success } = response;
+    
+        if(!success)
+            return res.status(403).json(response);
         
-        return { message: "", success: false }
+        return res.json(response);
     }
-    public editRoom(){}
 }

@@ -7,18 +7,20 @@ import { GenericUser, User } from '../types/User';
 
 const secret: string = process.env.SECRET || "this isn't a secret lmao";
 
-export default class TokenController {    
-    private static _instance: TokenController;
+export default class TokenModel {    
+    private static _instance: TokenModel;
 
     private constructor() {};
 
-    public static getTokenController(): TokenController {
+    public static getTokenController(): TokenModel {
         if(!this._instance)
-            this._instance = new TokenController();
+            this._instance = new TokenModel();
         
         return this._instance;
     }
-    
+    public static getTokenModel() {
+        return this.getTokenController();
+    }
     public generate(user: GenericUser): Token {
         const token = sign(user, secret, { expiresIn: '3h' });
         
@@ -27,11 +29,29 @@ export default class TokenController {
     public isValid(token: Token): OperationResponse {
         try{
             const result = verify(token, secret);
-
+            
             console.log(result)
+            
+            if(typeof result === "object" && result.exp && result.iat){
+                const { exp, iat } = result;
+                const isExpired = exp < iat;
+
+                if(isExpired){
+                    return {
+                        message: "the token is expired",
+                        success: isExpired
+                    }
+                }
+
+                return {
+                    message: "the token is valid",
+                    success: isExpired
+                }
+            }
+
             return {
-                message: "this token is valid",
-                success: true
+                message: "this token isn't valid",
+                success: false
             };
         }
         catch(err){

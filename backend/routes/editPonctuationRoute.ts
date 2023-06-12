@@ -1,14 +1,8 @@
-import { Router, Request, Response } from "express";
-import { PlayerOperations } from "../enums/PlayerOperations";
+import { Router } from "express";
 import RoomController from "../controllers/RoomController";
 
 const editPonctuationRouter = Router();
-const roomController = RoomController.getRoomController();
 
-editPonctuationRouter.put('/edit', async (req: Request, res: Response) => {
-    const { token, userID, operation } = req.body;
-    
-
-});
+editPonctuationRouter.put('/edit', RoomController.editPonctuation);
 
 export default editPonctuationRouter;
