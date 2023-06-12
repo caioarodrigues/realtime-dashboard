@@ -31,8 +31,15 @@ export default class TokenModel {
             const result = verify(token, secret);
             
             console.log(result)
-            
-            if(typeof result === "object" && result.exp && result.iat){
+
+            if(typeof result === "object"){
+                if(!result.iat || !result.exp){
+                    return {
+                        message: "this token isn't valid",
+                        success: false
+                    };
+                }
+                
                 const { exp, iat } = result;
                 const isExpired = exp < iat;
 
