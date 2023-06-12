@@ -6,10 +6,10 @@ import UserModel from "./UserModel";
 import TokenModel from "./TokenModel";
 import log from "../decorators/log";
 import { PlayerOperations } from "../enums/PlayerOperations";
+import TokenController from "../controllers/TokenController";
 
 const rooms: Room[] = [];
 const userController = UserModel.getUserController();
-const tokenController = TokenModel.getTokenController();
 export default class RoomModel {
     private static _instance: RoomModel;
     private constructor() {}
@@ -20,11 +20,11 @@ export default class RoomModel {
         
         return this._instance;
     }
-    private changePonctuation(id: number, operation: PlayerOperations): OperationResponse{
+    private async changePonctuation(id: number, operation: PlayerOperations): Promise<OperationResponse>{
         throw new Error("fail, not implemented yet!");
     }
-    private isAdmin(token: Token): boolean {
-        const decrypted = tokenController.decrypt(token);
+    private async isAdmin(token: Token): Promise<boolean> {
+        const decrypted = await TokenController.decrypt(token);
         const { id: userID } = decrypted!;
         const adminsIDs = rooms.map((room, i) => {
             if(!room || !room.admin)
@@ -37,7 +37,7 @@ export default class RoomModel {
 
         return adminsIDs.some(adm => adm === userID);
     }
-    public joinRoom(id: number, username: string): OperationResponse {
+    public async joinRoom(id: number, username: string): Promise<OperationResponse> {
         const thisUser = userController.createNewUser(username, id);
         const i = parseInt(id.toString());
 
@@ -59,7 +59,7 @@ export default class RoomModel {
             success: false
         }
     }
-    public addNewRoom(firstUser: FirstUser): OperationResponse {
+    public async addNewRoom(firstUser: FirstUser): Promise<OperationResponse> {
         const roomID = rooms.length;
         const thisRoom: Room = {
             id: roomID,
@@ -76,12 +76,12 @@ export default class RoomModel {
     }
     
     @log
-    public listAllRooms(): Room[] {
+    public async listAllRooms(): Promise<Room[]> {
         return rooms;
     }
-    public removeRoom(id: number, token: Token): OperationResponse {
-        const { success } = tokenController.isValid(token);
-        const data = tokenController.decrypt(token);
+    public async removeRoom(id: number, token: Token): Promise<OperationResponse> {
+        const { success } = await TokenController.isValid(token);
+        const data = await TokenController.decrypt(token);
 
         console.log(`${success}, ${JSON.stringify(data)}`);
 
@@ -133,13 +133,13 @@ export default class RoomModel {
             }
         }
     }
-    public editPlayerPonctuation(token: Token, userID: number, roomID: number, operation: PlayerOperations): OperationResponse {
+    public async editPlayerPonctuation(token: Token, userID: number, roomID: number, operation: PlayerOperations): Promise<OperationResponse> {
         let wasFound: boolean = false;
 
-        if(!tokenController.isValid(token)){
+        if(!(await TokenController.isValid(token))){
             return { message: "this token isn't valid!", success: false }
         }
-        if(!this.isAdmin(token)){
+        if(!(await this.isAdmin(token))){
             return {
                 message: "you cannot do this because you're not an admin!",
                 success: false
@@ -185,5 +185,5 @@ export default class RoomModel {
 
         return { message: "the ponctuation was edited", success: true };
     }
-    public editRoom(){}
+    public async editRoom(){}
 }

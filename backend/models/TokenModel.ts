@@ -39,13 +39,13 @@ export default class TokenModel {
                 if(isExpired){
                     return {
                         message: "the token is expired",
-                        success: isExpired
+                        success: false
                     }
                 }
 
                 return {
                     message: "the token is valid",
-                    success: isExpired
+                    success: true
                 }
             }
 
