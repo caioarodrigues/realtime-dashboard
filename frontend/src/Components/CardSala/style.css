@@ -1,0 +1,32 @@
+.card{
+    justify-content: space-between;
+    border: solid 1px black;
+    width: 12rem;
+    height: 20rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: start;
+    background-color: #ccc;
+    margin-inline: .25rem;
+    margin-top: .25rem;
+    box-shadow: 5px 5px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.nome-usuarios{
+    background-color: cadetblue;
+    border-radius: .25rem;
+    padding: .1px;
+}
+
+.nome-admins{
+    border-radius: .25rem;
+    background-color: cadetblue;
+}
+
+.nome-admins h5, .nome-admins p, .nome-usuarios h5,
+.nome-usuarios p {
+    margin-left: 5px;
+}
