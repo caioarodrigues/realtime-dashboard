@@ -37,6 +37,12 @@ export default class RoomModel {
 
         return adminsIDs.some(adm => adm === userID);
     }
+    public async getRoom(id: number): Promise<Room>{
+        if(id > rooms.length)
+            return null;
+        
+        return rooms[id];
+    }
     public async joinRoom(id: number, username: string): Promise<OperationResponse> {
         const thisUser = userController.createNewUser(username, id);
         const i = parseInt(id.toString());

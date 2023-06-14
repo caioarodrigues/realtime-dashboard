@@ -8,6 +8,20 @@ const roomModel = RoomModel.getRoomModel();
 const userModel = UserModel.getUserModel();
 const tokenModel = TokenModel.getTokenModel();
 export default class RoomController {
+    public static async getRoom(req: Request, res: Response){
+        const { id } = req.params;
+        try{
+            const index = parseInt(id);
+            const room = roomModel.getRoom(index);
+            
+            return res.json(room);
+        }
+        catch(err: unknown){
+            console.log(`Error while trying to find the room. ${err}`);
+            
+            return res.status(404);
+        }
+    }
     public static async getAllRooms(req: Request, res: Response){
         const rooms = await roomModel.listAllRooms();
 
