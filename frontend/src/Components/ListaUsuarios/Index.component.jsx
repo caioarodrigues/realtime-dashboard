@@ -10,7 +10,9 @@ export default function ListaUsuarios(props){
                 {usernames.map(({ username }, index, array) => {
                     const resposta = index < array.length - 1 ? `${username}, ` : username;
 
-                    if(index > 1){
+                    if(index > 1)
+                        return;
+                    if(index === 1){
                         return (
                             <span>
                                 {`${username}, ...`}
