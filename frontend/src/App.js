@@ -1,13 +1,11 @@
-import Header from "./Components/Header/Index.component.jsx";
-import ListaSala from "./Components/ListaSala/Index.component.jsx";
-import BarraHorizontal from "./Components/BarraHorizontal/Index.component.jsx";
+import ReactDOM from "react-dom";
+//import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import PaginaInicial from "./Components/PaginaInicial/Index.component"
 
 export default function App(){
   return(
     <>
-      <Header/>
-      <BarraHorizontal/>
-      <ListaSala/>
+      <PaginaInicial/>
     </>
   )
 }
