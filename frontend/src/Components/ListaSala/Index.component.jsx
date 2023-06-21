@@ -16,8 +16,8 @@ export default function ListaSala() {
 
   return (
     <section className='lista-salas' style={{
-      display: 'flex', flexFlow: "wrap row", justifyContent: 'center'
-      }}>
+      display: 'flex', flexFlow: "wrap row", justifyContent: 'center',
+      backgroundColor: "lightslategrey"}}>
       {dados.map(dado => {
         const { id, users, admin } = dado;
 
