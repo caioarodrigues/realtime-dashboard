@@ -1,30 +1,11 @@
-import { useEffect, useState } from 'react';
-import CardSala from './Components/CardSala/Index.component.jsx';
-import './App.css';
+import Header from "./Components/Header/Index.component.jsx";
+import ListaSala from "./Components/ListaSala/Index.component.jsx";
 
-const url = "http://localhost:4000";
-
-function App() {
-  const [dados, setDados] = useState([]);
-
-  useEffect(() => {
-    fetch(url)
-      .then(res => res.json())
-      .then(data => setDados(data))
-      .catch(error => console.error('Ocorreu um erro:', error));
-  }, []);
-
-  return (
+export default function App(){
+  return(
     <>
-      {dados.map(dado => {
-        const { id, users, admin } = dado;
-
-        return (
-          <CardSala id={id} users={users} admin={admin}/>
-        );
-      })}
+      <Header/>
+      <ListaSala/>
     </>
-  );
+  )
 }
-
-export default App;

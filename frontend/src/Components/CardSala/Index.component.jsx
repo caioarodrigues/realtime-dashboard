@@ -26,7 +26,9 @@ export default function CardSala(props){
                 <main>
                     <p>Clique para entrar</p>
                     <div className="botao-div">
-                        <Botao nome="entrar"/>
+                        <Botao>
+                            entrar
+                        </Botao>
                     </div>
                 </main>
             </article>
